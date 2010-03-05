@@ -7,13 +7,13 @@ using Machine.Specifications.Utility;
 
 namespace Machine.Specifications.Model
 {
-  public class Context
+  public class Given
   {
     readonly List<Specification> _specifications;
     readonly object _instance;
     readonly Subject _subject;
-    readonly IEnumerable<Given> _contextClauses;
-    readonly When _whenClause;
+    readonly IEnumerable<Establish> _contextClauses;
+    readonly Because _becauseClause;
     readonly IEnumerable<Cleanup> _cleanupClauses;
     readonly IEnumerable<Tag> _tags;
 
@@ -25,16 +25,16 @@ namespace Machine.Specifications.Model
     public IEnumerable<Specification> Specifications { get { return _specifications; } }
     public Type Type { get; private set; }
     public Subject Subject { get { return _subject; } }
-    public bool HasBecauseClause { get { return _whenClause != null; } }
+    public bool HasBecauseClause { get { return _becauseClause != null; } }
 
-    public Context(Type type, object instance, IEnumerable<Given> contextClauses, When whenClause, IEnumerable<Cleanup> cleanupClauses, Subject subject, bool isIgnored, IEnumerable<Tag> tags, bool isSetupForEachSpec)
+    public Given(Type type, object instance, IEnumerable<Establish> contextClauses, Because becauseClause, IEnumerable<Cleanup> cleanupClauses, Subject subject, bool isIgnored, IEnumerable<Tag> tags, bool isSetupForEachSpec)
     {
       Name = type.Name.ToFormat();
       Type = type;
       _instance = instance;
       _cleanupClauses = cleanupClauses;
       _contextClauses = contextClauses;
-      _whenClause = whenClause;
+      _becauseClause = becauseClause;
       _specifications = new List<Specification>();
       _subject = subject;
       IsIgnored = isIgnored;
@@ -54,7 +54,7 @@ namespace Machine.Specifications.Model
       try
       {
         _contextClauses.InvokeAll();
-        _whenClause.InvokeIfNotNull();
+        _becauseClause.InvokeIfNotNull();
       }
       catch (Exception err)
       {

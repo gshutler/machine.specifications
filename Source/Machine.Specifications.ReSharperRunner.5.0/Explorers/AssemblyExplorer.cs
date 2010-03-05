@@ -44,7 +44,7 @@ namespace Machine.Specifications.ReSharperRunner.Explorers
     public void Explore()
     {
       if (!_assembly.ReferencedAssembliesNames.Exists(x => String.Equals(x.AssemblyName.Name,
-                                                                         typeof(It).Assembly.GetName().Name,
+                                                                         typeof(Then).Assembly.GetName().Name,
                                                                          StringComparison.InvariantCultureIgnoreCase)))
       {
         return;

@@ -21,7 +21,7 @@ namespace Machine.Specifications.Factories
 
     public Context CreateContextFrom(object instance, FieldInfo fieldInfo)
     {
-      if (fieldInfo.FieldType == typeof(It))
+      if (fieldInfo.FieldType == typeof(Then))
       {
         return CreateContextFrom(instance, new[] { fieldInfo });
       }
@@ -34,7 +34,7 @@ namespace Machine.Specifications.Factories
     public Context CreateContextFrom(object instance)
     {
       var type = instance.GetType();
-      var fieldInfos = type.GetPrivateFieldsOfType<It>()
+      var fieldInfos = type.GetPrivateFieldsOfType<Then>()
         .Union(type.GetPrivateFieldsWith(typeof(Behaves_like<>)));
 
       return CreateContextFrom(instance, fieldInfos);
@@ -47,16 +47,16 @@ namespace Machine.Specifications.Factories
       List<FieldInfo> itFieldInfos = new List<FieldInfo>();
       List<FieldInfo> itShouldBehaveLikeFieldInfos = new List<FieldInfo>();
 
-      var contextClauses = ExtractPrivateFieldValues<Establish>(instance);
+      var contextClauses = ExtractPrivateFieldValues<Given>(instance);
       contextClauses.Reverse();
 
       var cleanupClauses = ExtractPrivateFieldValues<Cleanup>(instance);
 
-      var becauses = ExtractPrivateFieldValues<Because>(instance);
+      var becauses = ExtractPrivateFieldValues<When>(instance);
 
       if (becauses.Count > 1)
       {
-        throw new SpecificationUsageException("There can only be one Because clause.");
+        throw new SpecificationUsageException("There can only be one When clause.");
       }
 
       var concern = ExtractSubject(type);
@@ -77,7 +77,7 @@ namespace Machine.Specifications.Factories
       foreach (FieldInfo info in fieldInfos)
       {
         if (acceptedSpecificationFields.Contains(info) &&
-            info.FieldType == typeof(It))
+            info.FieldType == typeof(Then))
         {
           itFieldInfos.Add(info);
         }

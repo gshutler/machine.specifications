@@ -28,14 +28,14 @@ namespace Machine.Specifications.Factories
 
       object behaviorInstance = Activator.CreateInstance(behaviorType);
 
-      if (behaviorType.GetPrivateFieldsOfType<Establish>().Any())
+      if (behaviorType.GetPrivateFieldsOfType<Given>().Any())
       {
-        throw new SpecificationUsageException("You cannot have Establishs on Behaviors. Establish found in " + behaviorType.FullName);
+        throw new SpecificationUsageException("You cannot have Establishs on Behaviors. Given found in " + behaviorType.FullName);
       }
       
-      if (behaviorType.GetPrivateFieldsOfType<Because>().Any())
+      if (behaviorType.GetPrivateFieldsOfType<When>().Any())
       {
-        throw new SpecificationUsageException("You cannot have Becauses on Behaviors. Because found in " + behaviorType.FullName);
+        throw new SpecificationUsageException("You cannot have Becauses on Behaviors. When found in " + behaviorType.FullName);
       }
 
       if (behaviorType.GetPrivateFieldsWith(typeof(Behaves_like<>)).Any())
@@ -47,7 +47,7 @@ namespace Machine.Specifications.Factories
                       behaviorInstance.GetType().HasAttribute<IgnoreAttribute>();
       var behavior = new Behavior(behaviorInstance, context, isIgnored);
 
-      IEnumerable<FieldInfo> itFieldInfos = behaviorType.GetPrivateFieldsOfType<It>();
+      IEnumerable<FieldInfo> itFieldInfos = behaviorType.GetPrivateFieldsOfType<Then>();
       CreateBehaviorSpecifications(itFieldInfos, behavior);
 
       return behavior;

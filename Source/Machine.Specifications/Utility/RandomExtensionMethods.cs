@@ -15,15 +15,15 @@ namespace Machine.Specifications.Utility
       }
     }
 
-    public static void InvokeIfNotNull(this Because because)
+    public static void InvokeIfNotNull(this When when)
     {
-      if (because != null)
-        because.Invoke();
+      if (when != null)
+        when.Invoke();
     }
 
-    public static void InvokeAll(this IEnumerable<Establish> contextActions)
+    public static void InvokeAll(this IEnumerable<Given> contextActions)
     {
-      foreach (Establish contextAction in contextActions)
+      foreach (Given contextAction in contextActions)
       {
         contextAction();
       }

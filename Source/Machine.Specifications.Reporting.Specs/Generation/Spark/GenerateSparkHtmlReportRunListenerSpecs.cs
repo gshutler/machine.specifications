@@ -11,7 +11,7 @@ namespace Machine.Specifications.Reporting.Specs.Generation.Spark
     static GenerateSparkHtmlReportRunListener Listener;
     static ISpecificationTreeReportGenerator ReportGenerator;
 
-    Establish context = () =>
+    Given context = () =>
       {
         ReportGenerator = MockRepository.GenerateStub<ISpecificationTreeReportGenerator>();
 
@@ -23,9 +23,9 @@ namespace Machine.Specifications.Reporting.Specs.Generation.Spark
         Listener.OnRunStart();
       };
 
-    Because of = () => Listener.OnRunEnd();
+    When of = () => Listener.OnRunEnd();
 
-    It should_generate_the_run_report =
+    Then should_generate_the_run_report =
       () => ReportGenerator.AssertWasCalled(x => x.GenerateReport(Listener.Run));
   }
 }
