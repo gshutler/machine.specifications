@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using System.Security;
 using Machine.Specifications.Utility;
 
 namespace Machine.Specifications.Runner.Impl
@@ -19,6 +20,7 @@ namespace Machine.Specifications.Runner.Impl
       _options = options;
     }
 
+    [SecuritySafeCritical]
     public void RunAssembly(Assembly assembly)
     {
       _internalListener.OnRunStart();
@@ -28,6 +30,7 @@ namespace Machine.Specifications.Runner.Impl
       _internalListener.OnRunEnd();
     }
 
+    [SecuritySafeCritical]
     public void RunAssemblies(IEnumerable<Assembly> assemblies)
     {
       _internalListener.OnRunStart();
@@ -37,6 +40,7 @@ namespace Machine.Specifications.Runner.Impl
       _internalListener.OnRunEnd();
     }
 
+    [SecuritySafeCritical]
     public void RunNamespace(Assembly assembly, string targetNamespace)
     {
       _internalListener.OnRunStart();
@@ -47,6 +51,7 @@ namespace Machine.Specifications.Runner.Impl
       _internalListener.OnRunEnd();
     }
 
+    [SecuritySafeCritical]
     public void RunMember(Assembly assembly, MemberInfo member)
     {
       _internalListener.OnRunStart();
@@ -57,6 +62,7 @@ namespace Machine.Specifications.Runner.Impl
       _internalListener.OnRunEnd();
     }
 
+    [SecuritySafeCritical]
     void InternalRunAssembly(Assembly assembly)
     {
       AppDomain appDomain = CreateAppDomain(assembly);
@@ -64,6 +70,7 @@ namespace Machine.Specifications.Runner.Impl
       CreateRunnerAndUnloadAppDomain("Assembly", appDomain, assembly);
     }
 
+    [SecuritySafeCritical]
     void CreateRunnerAndUnloadAppDomain(string runMethod, AppDomain appDomain, Assembly assembly, params object[] args)
     {
       string mspecAssemblyFilename = Path.Combine(Path.GetDirectoryName(assembly.Location), "Machine.Specifications.dll");
@@ -76,18 +83,29 @@ namespace Machine.Specifications.Runner.Impl
       constructorArgs[2] = _options;
       Array.Copy(args, 0, constructorArgs, 3, args.Length);
 
-      try
+      using (new SpecAssemblyResolver(assembly))
       {
-        appDomain.CreateInstanceAndUnwrap(mspecAssemblyName.FullName, "Machine.Specifications.Runner.Impl.AppDomainRunner+" + runMethod + "Runner", false, 0, null, constructorArgs, null, null, null);
-      }
-      catch (Exception err)
-      {
-        Console.Error.WriteLine("Runner failure: " + err);
-        throw;
-      }
-      finally
-      {
-        AppDomain.Unload(appDomain);
+        try
+        {
+          appDomain.CreateInstanceAndUnwrap(mspecAssemblyName.FullName,
+                                            "Machine.Specifications.Runner.Impl.AppDomainRunner+" + runMethod + "Runner",
+                                            false,
+                                            0,
+                                            null,
+                                            constructorArgs,
+                                            null,
+                                            null,
+                                            null);
+        }
+        catch (Exception err)
+        {
+          Console.Error.WriteLine("Runner failure: " + err);
+          throw;
+        }
+        finally
+        {
+          AppDomain.Unload(appDomain);
+        }
       }
     }
 
@@ -127,6 +145,7 @@ namespace Machine.Specifications.Runner.Impl
         }
       }
 
+		[SecurityCritical]
       public override object InitializeLifetimeService()
       {
         return null;
@@ -148,6 +167,7 @@ namespace Machine.Specifications.Runner.Impl
         }
       }
 
+		[SecurityCritical]
       public override object InitializeLifetimeService()
       {
         return null;
@@ -169,6 +189,7 @@ namespace Machine.Specifications.Runner.Impl
         }
       }
 
+		[SecurityCritical]
       public override object InitializeLifetimeService()
       {
         return null;

@@ -36,7 +36,7 @@ namespace Machine.Specifications
       StreamingContext context)
       : base(info, context)
     {
-    }
+    }    
   }
 
   public static class ShouldExtensionMethods
@@ -224,6 +224,21 @@ namespace Machine.Specifications
         throw new SpecificationException(string.Format("Should not be of type {0} but is of type {1}", expected, actual.GetType()));
       }
     }
+    
+    public static void ShouldEachConformTo<T>(this IEnumerable<T> list, Func<T,bool> condition)
+    {
+      var source = new List<T>(list);
+
+      var failingItems = source.Where(x => condition(x) == false);
+
+      if(failingItems.Any())
+      {
+        var message = string.Format(@"The following elements did not conform to the specified condition: {0}", 
+          failingItems.EachToUsefulString());
+
+        throw new SpecificationException(message);
+      }
+    }
 
     public static void ShouldContain(this IEnumerable list, params object[] items)
     {
@@ -281,7 +296,7 @@ does not contain: {2}", items.EachToUsefulString(), list.EachToUsefulString(), n
 entire list: {1}
 does contain: {2}", items.EachToUsefulString(), list.EachToUsefulString(), contains.EachToUsefulString()));
       }
-    }
+    }    
 
     private static SpecificationException NewException(string message, params object[] parameters)
     {
@@ -392,6 +407,23 @@ does contain: {2}", items.EachToUsefulString(), list.EachToUsefulString(), conta
       }
     }
 
+    public static void ShouldMatch(this string actual, string pattern)
+    {
+      if (pattern == null) throw new ArgumentNullException("pattern");
+      if (actual == null) throw NewException("Should match regex {0} but is [null]", pattern);
+
+      ShouldMatch(actual, new System.Text.RegularExpressions.Regex(pattern));
+    }
+
+    public static void ShouldMatch(this string actual, System.Text.RegularExpressions.Regex pattern)
+    {
+      if (pattern == null) throw new ArgumentNullException("pattern");
+      if (actual == null) throw NewException("Should match regex {0} but is [null]", pattern);
+
+      if (!pattern.IsMatch(actual))
+        throw NewException("Should match {0} but is {1}", pattern, actual);        
+    }
+
     public static void ShouldContain(this string actual, string expected)
     {
       if (expected == null) throw new ArgumentNullException("expected");
@@ -400,6 +432,17 @@ does contain: {2}", items.EachToUsefulString(), list.EachToUsefulString(), conta
       if (!actual.Contains(expected))
       {
         throw NewException("Should contain {0} but is {1}", expected, actual);
+      }
+    }
+
+    public static void ShouldNotContain(this string actual, string notExpected)
+    {
+      if (notExpected == null) throw new ArgumentNullException("notExpected");
+      if (actual == null) return;
+
+      if (actual.Contains(notExpected))
+      {
+        throw NewException("Should not contain {0} but is {1}", notExpected, actual);
       }
     }
 
@@ -414,7 +457,7 @@ does contain: {2}", items.EachToUsefulString(), list.EachToUsefulString(), conta
       }
 
       return actual;
-    }
+    }    
 
     public static void ShouldStartWith(this string actual, string expected)
     {

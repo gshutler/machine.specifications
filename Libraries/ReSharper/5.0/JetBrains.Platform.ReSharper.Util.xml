@@ -180,17 +180,24 @@
             <param name="sExceptionMessageAmbiguous">The message for an exception to be thrown if the <paramref name="source"/> contains more than one element.</param>
             <returns>The single element of the input sequence that satisfies a condition.</returns>
         </member>
-        <member name="F:JetBrains.HashMap`2.Entry.HashCode">
+        <member name="T:JetBrains.Util.Collections.HashMap`2">
+            <summary>
+            Reimplementation of Dictionary.
+            </summary>
+            <typeparam name="TKey"></typeparam>
+            <typeparam name="TValue"></typeparam>
+        </member>
+        <member name="F:JetBrains.Util.Collections.HashMap`2.Entry.HashCode">
             <summary>
             Cached hash code of the key, -1 means entry is free
             </summary>
         </member>
-        <member name="F:JetBrains.HashMap`2.Entry.NextEntryIndex">
+        <member name="F:JetBrains.Util.Collections.HashMap`2.Entry.NextEntryIndex">
             <summary>
             Index of next entry in the chain of keys with the same hashcodes (modulo size), -1 means last
             </summary>
         </member>
-        <member name="F:JetBrains.HashMap`2.Entry.PrevEntryIndex">
+        <member name="F:JetBrains.Util.Collections.HashMap`2.Entry.PrevEntryIndex">
             <summary>
             Index of previous entry in the chain of keys with the same hashcodes (modulo size), -1 means first
             </summary>
@@ -201,6 +208,9 @@
             and count of objects in the collection.
             </summary>
             <typeparam name="T">The type of objects to enumerate.</typeparam>
+        </member>
+        <member name="T:JetBrains.Util.DataStructures.ReadOnlyException">
+            <summary>Represents the exception that is thrown when you try to change the value of a read-only entity.</summary>
         </member>
         <member name="F:JetBrains.Util.StrongToWeakDictionary`2.Entry.HashCode">
             <summary>
@@ -608,6 +618,13 @@
             <param name="coll">The collection.</param>
             <param name="handler">The handler that executes the opening bracket and returns an <see cref="T:System.IDisposable"/> that executes the closing bracket when disposed of.</param>
         </member>
+        <member name="M:JetBrains.DataFlow.IPropertyBagEx.LogChanges(JetBrains.DataFlow.IPropertyBag,System.String)">
+            <summary>
+            Logs the changes to the bag property set and the bag property values.
+            </summary>
+            <param name="thіs">The property.</param>
+            <param name="prefix">The optional prefix to be prepended in square brackets to each log message.</param>
+        </member>
         <member name="T:JetBrains.DataFlow.IPropertyEx">
             <summary>
             Extension method helpers for the data flow classes.
@@ -745,6 +762,12 @@
             Its return value is disposed of when the property looses the value for each it were executed.
             </summary>
         </member>
+        <member name="M:JetBrains.DataFlow.IPropertyEx.PushForEachValue_DisposeValue``1(JetBrains.DataFlow.IProperty{``0})">
+            <summary>
+            Makes sure each value of the property is disposed of when it exits the property.
+            Don't forget to dispose of what this method returns (or the property itself in the whole) to also deal correctly with the very last value.
+            </summary>
+        </member>
         <member name="M:JetBrains.DataFlow.IPropertyEx.PushForEachValue_NotNull``1(JetBrains.DataFlow.IProperty{``0},System.Func{``0,System.IDisposable})">
             <summary>
             Executes a pair of actions for each new value of the <paramref name="property"/>.
@@ -848,6 +871,11 @@
         <member name="M:JetBrains.DataFlow.ISignalEx.Advise_Add``1(JetBrains.DataFlow.ISignal{JetBrains.DataFlow.AddRemoveIndexEventArgs{``0}},System.Action{JetBrains.DataFlow.AddRemoveIndexEventArgs{``0}})">
             <summary>
             Sinks the collection's <see cref="F:JetBrains.DataFlow.AddRemove.Add"/> operation selectively.
+            </summary>
+        </member>
+        <member name="M:JetBrains.DataFlow.ISignalEx.Advise_InOut``2(JetBrains.DataFlow.ISignal{JetBrains.DataFlow.InOutEventArgs{``0,``1}},System.Func{``0,``1})">
+            <summary>
+            A helper for sinking IN-OUT events. Gets just the IN-argument for input, returns the OUT-argument.
             </summary>
         </member>
         <member name="M:JetBrains.DataFlow.ISignalEx.Advise_NoAcknowledgement``1(JetBrains.DataFlow.ISignal{JetBrains.DataFlow.BeforeAddRemoveEventArgs{``0}},System.Action{JetBrains.DataFlow.BeforeAddRemoveEventArgs{``0}})">
@@ -1613,6 +1641,53 @@
             When there are no more bytes to read, throws an exception.
             </summary>
         </member>
+        <member name="M:JetBrains.Util.DataStructures.ChunkHashSet`1.#ctor(System.Collections.Generic.ICollection{`0},System.Collections.Generic.IEqualityComparer{`0})">
+            <summary>
+            Static overload to prevent runtime type checks.
+            </summary>
+        </member>
+        <member name="M:JetBrains.Util.DataStructures.ChunkHashSet`1.SetEquals(JetBrains.Util.DataStructures.ChunkHashSet{`0})">
+            <summary>
+            Static overload to prevent runtime type checks.
+            </summary>
+        </member>
+        <member name="M:JetBrains.Util.DataStructures.ChunkHashSet`1.IsSupersetOf(System.Collections.Generic.ICollection{`0})">
+            <summary>
+            Static overload to prevent runtime type checks.
+            </summary>
+        </member>
+        <member name="M:JetBrains.Util.DataStructures.ChunkHashSet`1.IsSupersetOf(JetBrains.Util.DataStructures.ChunkHashSet{`0})">
+            <summary>
+            Static overload to prevent runtime type checks.
+            </summary>
+        </member>
+        <member name="F:JetBrains.Util.DataStructures.ChunkHashSet`1.Entry.HashCode">
+            <summary>
+            Cached hash code of the key, -1 means entry is free
+            </summary>
+        </member>
+        <member name="F:JetBrains.Util.DataStructures.ChunkHashSet`1.Entry.NextEntryIndex">
+            <summary>
+            Index of next entry in the chain of keys with the same hashcodes (modulo size), -1 means last
+            </summary>
+        </member>
+        <member name="T:JetBrains.Util.DataStructures.ChunkHashMap`2">
+            <summary>
+            Reimplementation of Dictionary.
+            </summary>
+            <typeparam name="TKey"></typeparam>
+            <typeparam name="TValue"></typeparam>
+        </member>
+        <member name="F:JetBrains.Util.DataStructures.ChunkHashMap`2.Entry.HashCode">
+            <summary>
+            Cached hash code of the key, -1 means entry is free
+            </summary>
+        </member>
+        <member name="F:JetBrains.Util.DataStructures.ChunkHashMap`2.Entry.NextEntryIndex">
+            <summary>
+            Index of next entry in the chain of keys with the same hashcodes (modulo size), -1 means last
+            </summary>
+        </member>
         <member name="M:JetBrains.dataStructures.ImmutableArray`1.#ctor(System.Collections.Generic.IEnumerable{`0},System.Int32)">
             <summary>
             Sightly optimized version where the count of the data is known before hand
@@ -2111,6 +2186,12 @@
             Opens a stream-writer on this file system path for writing, requesting minimum permissions and trying to be as non-blocking as possible.
             </summary>
         </member>
+        <member name="M:JetBrains.Util.PermanentUserIdUtil.GetUnuqueUserId">
+            <summary>
+            Returns global unique id of user. The Id is shared among all JetBrainss the applications.
+            </summary>
+            <returns></returns>
+        </member>
         <member name="M:JetBrains.UI.Interop.HResultsEx.Assert(JetBrains.Interop.WinApi.HResults)">
             <summary>
             Checks the given <c>HRESULT</c>, and throws an exception if it's a failure one (<see cref="M:JetBrains.Interop.WinApi.HResultHelpers.FAILED(System.Int32)"/>).
@@ -2347,57 +2428,57 @@
         </member>
         <member name="T:JetBrains.Util.ElementCreator`2">
             <summary>
-            Делегат для создания элемента кеша.
+            Äåëåãàò äëÿ ñîçäàíèÿ ýëåìåíòà êåøà.
             </summary>
         </member>
         <member name="T:JetBrains.Util.ElementsCache`2">
             <summary>
-            Кеш элементов. Для создания необходим параметр.
+            Êåø ýëåìåíòîâ. Äëÿ ñîçäàíèÿ íåîáõîäèì ïàðàìåòð.
             </summary>
         </member>
         <member name="M:JetBrains.Util.ElementsCache`2.#ctor(JetBrains.Util.ElementCreator{`0,`1})">
             <summary>
-            Инициализирует экземпляр.
+            Èíèöèàëèçèðóåò ýêçåìïëÿð.
             </summary>
         </member>
         <member name="M:JetBrains.Util.ElementsCache`2.Get(`0)">
             <summary>
-            Извлекает элемент из кеша.
+            Èçâëåêàåò ýëåìåíò èç êåøà.
             </summary>
         </member>
         <member name="M:JetBrains.Util.ElementsCache`2.OnAfterElementCreated(`0,`1)">
             <summary>
-            Вызывается после создания нового элемента.
+            Âûçûâàåòñÿ ïîñëå ñîçäàíèÿ íîâîãî ýëåìåíòà.
             </summary>
         </member>
         <member name="M:JetBrains.Util.ElementsCache`2.TryGet(`0,`1@)">
             <summary>
-            Производит попытку извлечения элемента.
+            Ïðîèçâîäèò ïîïûòêó èçâëå÷åíèÿ ýëåìåíòà.
             </summary>
         </member>
         <member name="M:JetBrains.Util.ElementsCache`2.Contains(`0)">
             <summary>
-            Возвращает, содержит ли кеш элемент с указанным ключем.
+            Âîçâðàùàåò, ñîäåðæèò ëè êåø ýëåìåíò ñ óêàçàííûì êëþ÷åì.
             </summary>
         </member>
         <member name="M:JetBrains.Util.ElementsCache`2.Drop(`0)">
             <summary>
-            Удаляет элемент кеша по заданному ключу.
+            Óäàëÿåò ýëåìåíò êåøà ïî çàäàííîìó êëþ÷ó.
             </summary>
         </member>
         <member name="M:JetBrains.Util.ElementsCache`2.Reset">
             <summary>
-            Сбросить кеш.
+            Ñáðîñèòü êåø.
             </summary>
         </member>
         <member name="P:JetBrains.Util.ElementsCache`2.ElementCreator">
             <summary>
-            Создатель элементов.
+            Ñîçäàòåëü ýëåìåíòîâ.
             </summary>
         </member>
         <member name="P:JetBrains.Util.ElementsCache`2.Keys">
             <summary>
-            Коллекция всех ключей.
+            Êîëëåêöèÿ âñåõ êëþ÷åé.
             </summary>
         </member>
         <member name="F:JetBrains.Util.IsDisposedState.Live">
@@ -2420,7 +2501,7 @@
             Universal equality comparer.
             </summary>
         </member>
-        <member name="M:JetBrains.EqualityComparer`1.Equals(`0,`0)">
+        <member name="M:JetBrains.EqualityComparer`1.System#Collections#Generic#IEqualityComparer{T}#Equals(`0,`0)">
             <summary>
             Determines whether the specified objects are equal.
             </summary>
@@ -2430,7 +2511,7 @@
             <param name="x">The first object of type <typeparamref name="T" /> to compare.</param>
             <param name="y">The second object of type <typeparamref name="T" /> to compare.</param>
         </member>
-        <member name="M:JetBrains.EqualityComparer`1.GetHashCode(`0)">
+        <member name="M:JetBrains.EqualityComparer`1.System#Collections#Generic#IEqualityComparer{T}#GetHashCode(`0)">
             <summary>
             Returns a hash code for the specified object.
             </summary>
@@ -2756,12 +2837,22 @@
             Получить лок для читающего с возможностью апгрейда до пишущего.
             </summary>
         </member>
+        <member name="M:JetBrains.StringEx.ToEnum``1(System.String,System.Boolean)">
+            <summary>
+            Parse string to enum without any checking
+            </summary>
+        </member>
         <member name="M:JetBrains.StringEx.ToEnum``1(System.String)">
             <summary>
             Parse string to enum without any checking
             </summary>
         </member>
         <member name="M:JetBrains.StringEx.ToEnum``1(System.String,``0)">
+            <summary>
+            Parse string to enum with returning specified default value if parameter is null
+            </summary>
+        </member>
+        <member name="M:JetBrains.StringEx.ToEnum``1(System.String,System.Boolean,``0)">
             <summary>
             Parse string to enum with returning specified default value if parameter is null
             </summary>
@@ -2948,6 +3039,13 @@
             <summary>
             Index of previous entry in the chain of keys with the same hashcodes (modulo size), -1 means first
             </summary>
+        </member>
+        <member name="F:JetBrains.Application.CompanyInfo.PlatformProductRegistryKeyName">
+            <summary>
+            <para>In the Registry, name of the key that's shared by all of the Platform-based products (under the company name key).</para>
+            <para>Things like InstanceId that are used by usage statistics of all the products are stored there.</para>
+            </summary>
+            <example><code>HKEY_CURRENT_USER\Software\JetBrains\Platform</code></example>
         </member>
         <member name="T:JetBrains.Comparer`1">
             <summary>
@@ -11624,12 +11722,7 @@
             Static overload to prevent runtime type checks.
             </summary>
         </member>
-        <member name="M:System.Linq.Enumerable.Count``1(``0[])">
-            <summary>
-            Static overload to prevent ambiguity between <see cref="M:System.Linq.Enumerable.Count``1(System.Collections.Generic.ICollection{``0})"/> and <see cref="M:System.Linq.Enumerable.Count(System.Array)"/>.
-            </summary>
-        </member>
-        <member name="M:System.Linq.Enumerable.Count(System.Array)">
+        <member name="M:System.Linq.Enumerable.Count(System.Collections.ICollection)">
             <summary>
             Static overload to prevent runtime type checks.
             </summary>
@@ -11645,6 +11738,21 @@
             </summary>
         </member>
         <member name="M:System.Linq.Enumerable.Any``1(System.Collections.Generic.ICollection{``0})">
+            <summary>
+            Static overload to prevent runtime type checks.
+            </summary>
+        </member>
+        <member name="M:System.Linq.Enumerable.Any``1(JetBrains.Util.LocalList{``0})">
+            <summary>
+            Static overload to prevent runtime type checks.
+            </summary>
+        </member>
+        <member name="M:System.Linq.Enumerable.Any``1(System.Collections.Generic.Queue{``0})">
+            <summary>
+            Static overload to prevent runtime type checks.
+            </summary>
+        </member>
+        <member name="M:System.Linq.Enumerable.Any``1(System.Collections.Generic.Stack{``0})">
             <summary>
             Static overload to prevent runtime type checks.
             </summary>
@@ -11769,9 +11877,9 @@
             Index of next entry in the chain of keys with the same hashcodes (modulo size), -1 means last
             </summary>
         </member>
-        <member name="F:System.Collections.Generic.HashSet`1.Entry.PrevEntryIndex">
+        <member name="F:System.Collections.Generic.HashSet`1.Entry.Element">
             <summary>
-            Index of previous entry in the chain of keys with the same hashcodes (modulo size), -1 means first
+            Element of set
             </summary>
         </member>
         <member name="T:JetBrains.TreeModels.CascadeGroup">
@@ -12793,14 +12901,14 @@
             Arguments for the <see cref="T:JetBrains.UI.Interop.WindowsMessageHook"/>-emitted messages.
             </summary>
         </member>
-        <member name="F:JetBrains.UI.Interop.WindowsMessageEventArgs.HookManager">
-            <summary>
-            Gets the windows message hooks manager you're subscribed to.
-            </summary>
-        </member>
         <member name="F:JetBrains.UI.Interop.WindowsMessageEventArgs.HWnd">
             <summary>
             Gets the handle to the window that is receiving the message.
+            </summary>
+        </member>
+        <member name="F:JetBrains.UI.Interop.WindowsMessageEventArgs.HookManager">
+            <summary>
+            Gets the windows message hooks manager you're subscribed to.
             </summary>
         </member>
         <member name="F:JetBrains.UI.Interop.WindowsMessageEventArgs.LParam">
@@ -14130,12 +14238,36 @@
         </member>
         <member name="M:JetBrains.Util.CollectionUtil.IsEmpty``1(System.Collections.Generic.IEnumerable{``0})">
             <summary>
-            Returns <c>true</c> if and only if <paramref name="collection"/> is empty (has no elements)
+            Returns <c>true</c> if and only if <paramref name="collection"/> is empty (has no elements).
             </summary>
         </member>
         <member name="M:JetBrains.Util.CollectionUtil.IsEmpty``1(System.Collections.Generic.ICollection{``0})">
             <summary>
-            Returns <c>true</c> if and only if <paramref name="collection"/> is empty (has no elements)
+            Returns <c>true</c> if and only if <paramref name="collection"/> is empty (has no elements).
+            </summary>
+            <remarks>
+            Static overload to prevent runtime type checks.
+            </remarks>
+        </member>
+        <member name="M:JetBrains.Util.CollectionUtil.IsEmpty``1(JetBrains.Util.LocalList{``0})">
+            <summary>
+            Returns <c>true</c> if and only if <paramref name="collection"/> is empty (has no elements).
+            </summary>
+            <summary>
+            Static overload to prevent runtime type checks.
+            </summary>
+        </member>
+        <member name="M:JetBrains.Util.CollectionUtil.IsEmpty``1(System.Collections.Generic.Stack{``0})">
+            <summary>
+            Returns <c>true</c> if and only if <paramref name="collection"/> is empty (has no elements).
+            </summary>
+            <remarks>
+            Static overload to prevent runtime type checks.
+            </remarks>
+        </member>
+        <member name="M:JetBrains.Util.CollectionUtil.IsEmpty``1(System.Collections.Generic.Queue{``0})">
+            <summary>
+            Returns <c>true</c> if and only if <paramref name="collection"/> is empty (has no elements).
             </summary>
             <remarks>
             Static overload to prevent runtime type checks.
@@ -14417,6 +14549,124 @@
         <member name="M:JetBrains.Util.CollectionUtil.Pop``1(System.Collections.Generic.Stack{``0},System.String)">
             <summary>
             Pops the item from the stack (<see cref="M:System.Collections.Generic.Stack`1.Pop"/>), throws the <paramref name="exception">specific message</paramref> if the stack is empty, instead of the generic stack exception.
+            </summary>
+        </member>
+        <member name="M:JetBrains.Util.CollectionUtil.ArrayUnion``1(``0[],``0)">
+            <summary>
+            <para>Creates a new array that is the old array plus one new item.</para>
+            <para>If the item is already present in the list, returns the old array.</para>
+            <para>This method is useful for implementing the copy-on-write scenarios a bit more effectively (compared to old.Concat(item).ToArray()).</para>
+            </summary>
+            <typeparam name="TItem">Item type.</typeparam>
+            <param name="thіs">Original array (will not be modified).</param>
+            <param name="item">The item to add.</param>
+            <returns>The new array, if item added; the old array, if no change.</returns>
+        </member>
+        <member name="M:JetBrains.Util.CollectionUtil.ArrayUnion``1(``0[],``0,System.Collections.Generic.IEqualityComparer{``0})">
+            <summary>
+            <para>Creates a new array that is the old array plus one new item.</para>
+            <para>If the item is already present in the list, returns the old array.</para>
+            <para>This method is useful for implementing the copy-on-write scenarios a bit more effectively (compared to old.Concat(item).ToArray()).</para>
+            </summary>
+            <typeparam name="TItem">Item type.</typeparam>
+            <param name="thіs">Original array (will not be modified).</param>
+            <param name="item">The item to add.</param>
+            <param name="comparer">Item equality.</param>
+            <returns>The new array, if item added; the old array, if no change.</returns>
+        </member>
+        <member name="M:JetBrains.Util.CollectionUtil.ArrayExcept``1(``0[],``0)">
+            <summary>
+            <para>Creates a new array that is the old array except the given item.</para>
+            <para>If the item is not on the list, returns the old array.</para>
+            <para>This method is useful for implementing the copy-on-write scenarios a bit more effectively (compared to old.Concat(item).ToArray()).</para>
+            </summary>
+            <typeparam name="TItem">Item type.</typeparam>
+            <param name="thіs">Original array (will not be modified).</param>
+            <param name="item">The item to remove.</param>
+            <returns>The new array, if item removed; the old array, if no change.</returns>
+        </member>
+        <member name="M:JetBrains.Util.CollectionUtil.ArrayExcept``1(``0[],``0,System.Collections.Generic.IEqualityComparer{``0})">
+            <summary>
+            <para>Creates a new array that is the old array except the given item.</para>
+            <para>If the item is not on the list, returns the old array.</para>
+            <para>This method is useful for implementing the copy-on-write scenarios a bit more effectively (compared to old.Concat(item).ToArray()).</para>
+            </summary>
+            <typeparam name="TItem">Item type.</typeparam>
+            <param name="thіs">Original array (will not be modified).</param>
+            <param name="item">The item to remove.</param>
+            <param name="comparer">Item equality.</param>
+            <returns>The new array, if item removed; the old array, if no change.</returns>
+        </member>
+        <member name="P:JetBrains.Util.CollectionUtil.BinarySearchResult`1.IsHit">
+            <summary>
+            Gets whether the search found any results.
+            </summary>
+        </member>
+        <member name="P:JetBrains.Util.CollectionUtil.BinarySearchResult`1.HitIndex">
+            <summary>
+            Gets the index of the search hit, should there be any.
+            In case of a search miss, throws.
+            </summary>
+        </member>
+        <member name="P:JetBrains.Util.CollectionUtil.BinarySearchResult`1.NearestItemNotAboveTarget">
+            <summary>
+            The target, if the search had a hit.
+            Otherwise, the nearest item below the target.
+            If the first item in the list is above the target, throws an exception.
+            </summary>
+        </member>
+        <member name="P:JetBrains.Util.CollectionUtil.BinarySearchResult`1.NearestItemNotBelowTarget">
+            <summary>
+            The target, if the search had a hit.
+            Otherwise, the nearest item above the target.
+            If the last item in the list is below the target, throws an exception.
+            </summary>
+        </member>
+        <member name="P:JetBrains.Util.CollectionUtil.BinarySearchResult`1.NearestItemNotAboveTargetOrFirst">
+            <summary>
+            The target, if the search had a hit.
+            Otherwise, the nearest item below the target.
+            If the first item in the list is above the target, returns that item anyway. Throws on an empty list.
+            </summary>
+        </member>
+        <member name="P:JetBrains.Util.CollectionUtil.BinarySearchResult`1.NearestItemNotBelowTargetOrLast">
+            <summary>
+            The target, if the search had a hit.
+            Otherwise, the nearest item above the target.
+            If the last item in the list is below the target, returns that item anyway. Throws on an empty list.
+            </summary>
+        </member>
+        <member name="P:JetBrains.Util.CollectionUtil.BinarySearchResult`1.NearestIndexNotAboveTarget">
+            <summary>
+            The target, if the search had a hit.
+            Otherwise, the nearest item below the target.
+            If the first item in the list is above the target, throws an exception.
+            </summary>
+        </member>
+        <member name="P:JetBrains.Util.CollectionUtil.BinarySearchResult`1.NearestIndexNotBelowTarget">
+            <summary>
+            The target, if the search had a hit.
+            Otherwise, the nearest item above the target.
+            If the last item in the list is below the target, throws an exception.
+            </summary>
+        </member>
+        <member name="P:JetBrains.Util.CollectionUtil.BinarySearchResult`1.NearestIndexNotAboveTargetOrFirst">
+            <summary>
+            The target, if the search had a hit.
+            Otherwise, the nearest item below the target.
+            If the first item in the list is above the target, returns that item anyway. Throws on an empty list.
+            </summary>
+        </member>
+        <member name="P:JetBrains.Util.CollectionUtil.BinarySearchResult`1.NearestIndexNotBelowTargetOrLast">
+            <summary>
+            The target, if the search had a hit.
+            Otherwise, the nearest item above the target.
+            If the last item in the list is below the target, returns that item anyway. Throws on an empty list.
+            </summary>
+        </member>
+        <member name="P:JetBrains.Util.CollectionUtil.BinarySearchResult`1.HitItem">
+            <summary>
+            If the search found an item, returns that item. Otherwise, throws.
             </summary>
         </member>
         <member name="T:JetBrains.Util.Console.MyConsole">
@@ -15792,12 +16042,17 @@
             Renders the pointer-sized integer as the appropriate number of hex chars, with leading zeros.
             </summary>
         </member>
+        <member name="M:JetBrains.Util.StringUtil.ToHexString(System.Void*)">
+            <summary>
+            Renders the pointer value as the appropriate number of hex chars, with leading zeros.
+            </summary>
+        </member>
         <member name="M:JetBrains.Util.StringUtil.ToHexString(System.UIntPtr)">
             <summary>
             Renders the pointer-sized integer as the appropriate number of hex chars, with leading zeros.
             </summary>
         </member>
-        <member name="M:JetBrains.Util.StringUtil.ToStringWithLeading(System.Int32,System.Int32)">
+        <member name="M:JetBrains.Util.StringUtil.ToStringWithLeading(System.Int32,System.Int32,System.Globalization.CultureInfo)">
             <summary>
             Formats the <paramref name="value"/> to a string, adding leading zeros so that all of the numbers up to <paramref name="maxvalue"/>, inclusively, had the same number of characters in their string representation when formatted thru this function.
             </summary>
