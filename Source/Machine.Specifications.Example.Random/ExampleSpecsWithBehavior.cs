@@ -79,7 +79,7 @@ namespace Machine.Specifications.Specs
   {
     public static bool LocalSpecRan;
     
-    It should_not_run = () => LocalSpecRan = true;
+    Then should_not_run = () => LocalSpecRan = true;
     Behaves_like<BehaviorsWithProtectedFields> behavior_with_protected_fields;
   }
 
@@ -89,7 +89,7 @@ namespace Machine.Specifications.Specs
     public static bool LocalSpecRan;
     protected static bool fieldThatShouldBeCopiedOverFromContext;
 
-    It should_not_run = () => LocalSpecRan = true;
+    Then should_not_run = () => LocalSpecRan = true;
     Behaves_like<BehaviorsWithProtectedFields> behavior_with_protected_fields;
   }
 
@@ -150,6 +150,6 @@ namespace Machine.Specifications.Specs
     public static bool BehaviorSpecRan;
     protected static int fieldThatShouldBeCopiedOverFromContext;
 
-    It should_not_run = () => BehaviorSpecRan = true;
+    Then should_not_run = () => BehaviorSpecRan = true;
   }
 }

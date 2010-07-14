@@ -205,7 +205,7 @@ namespace Machine.Specifications.Specs
     [Tags(tag.example)]
     public class nested_context
     {
-      It should_be_run = () => { };
+      Then should_be_run = () => { };
     }
   }
 }
