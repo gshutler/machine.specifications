@@ -12,6 +12,7 @@ namespace Machine.Specifications.Factories
   {
     readonly BehaviorFactory _behaviorFactory;
     readonly SpecificationFactory _specificationFactory;
+    static int _allowedNumberOfBecauseBlocks = 1;
 
     public ContextFactory()
     {
@@ -23,12 +24,9 @@ namespace Machine.Specifications.Factories
     {
       if (fieldInfo.FieldType == typeof(Then))
       {
-        return CreateContextFrom(instance, new[] { fieldInfo });
+        return CreateContextFrom(instance, new[] {fieldInfo});
       }
-      else
-      {
-        return CreateContextFrom(instance);
-      }
+      return CreateContextFrom(instance);
     }
 
     public Context CreateContextFrom(object instance)
@@ -44,19 +42,23 @@ namespace Machine.Specifications.Factories
     {
       var type = instance.GetType();
       var fieldInfos = type.GetPrivateFields();
-      List<FieldInfo> itFieldInfos = new List<FieldInfo>();
-      List<FieldInfo> itShouldBehaveLikeFieldInfos = new List<FieldInfo>();
+      var itFieldInfos = new List<FieldInfo>();
+      var itShouldBehaveLikeFieldInfos = new List<FieldInfo>();
 
-      var contextClauses = ExtractPrivateFieldValues<Given>(instance);
+      var contextClauses = ExtractPrivateFieldValues<Given>(instance, true);
       contextClauses.Reverse();
 
-      var cleanupClauses = ExtractPrivateFieldValues<Cleanup>(instance);
+      var cleanupClauses = ExtractPrivateFieldValues<Cleanup>(instance, true);
 
-      var becauses = ExtractPrivateFieldValues<When>(instance);
+      var becauses = ExtractPrivateFieldValues<When>(instance, false);
+      becauses.Reverse();
 
-      if (becauses.Count > 1)
+      if (becauses.Count > _allowedNumberOfBecauseBlocks)
       {
-        throw new SpecificationUsageException("There can only be one When clause.");
+        var message = String.Format("There can only be one When clause. Found {0} Whens in the type hierarchy of {1}.",
+                                    becauses.Count,
+                                    instance.GetType().FullName);
+        throw new SpecificationUsageException(message);
       }
 
       var concern = ExtractSubject(type);
@@ -67,14 +69,14 @@ namespace Machine.Specifications.Factories
       var context = new Context(type,
                                 instance,
                                 contextClauses,
-                                becauses.FirstOrDefault(),
+                                becauses,
                                 cleanupClauses,
                                 concern,
                                 isIgnored,
                                 tags,
                                 isSetupForEachSpec);
 
-      foreach (FieldInfo info in fieldInfos)
+      foreach (var info in fieldInfos)
       {
         if (acceptedSpecificationFields.Contains(info) &&
             info.FieldType == typeof(Then))
@@ -117,19 +119,24 @@ namespace Machine.Specifications.Factories
 
       if (attributes.Length == 0)
       {
-        return null;
+        if (type.DeclaringType == null)
+        {
+          return null;
+        }
+
+        return ExtractSubject(type.DeclaringType);
       }
 
       var attribute = (SubjectAttribute) attributes[0];
 
-      return new Subject(attribute.SubjectType, attribute.SubjectText);
+      return attribute.CreateSubject();
     }
 
     void CreateSpecifications(IEnumerable<FieldInfo> itFieldInfos, Context context)
     {
       foreach (var itFieldInfo in itFieldInfos)
       {
-        Specification specification = _specificationFactory.CreateSpecification(context, itFieldInfo);
+        var specification = _specificationFactory.CreateSpecification(context, itFieldInfo);
         context.AddSpecification(specification);
       }
     }
@@ -139,7 +146,7 @@ namespace Machine.Specifications.Factories
     {
       foreach (var itShouldBehaveLikeFieldInfo in itShouldBehaveLikeFieldInfos)
       {
-        Behavior behavior = _behaviorFactory.CreateBehaviorFrom(itShouldBehaveLikeFieldInfo, context);
+        var behavior = _behaviorFactory.CreateBehaviorFrom(itShouldBehaveLikeFieldInfo, context);
 
         foreach (var specification in behavior.Specifications)
         {
@@ -148,33 +155,49 @@ namespace Machine.Specifications.Factories
       }
     }
 
-    static List<T> ExtractPrivateFieldValues<T>(object instance)
+    static void CollectDetailsOf<T>(Type target, Func<object> instanceResolver, ICollection<T> items, bool ensureMaximumOfOne)
+    {
+      if (target == typeof(Object) || target == null)
+      {
+        return;
+      }
+      var instance = instanceResolver();
+      if (instance == null)
+      {
+        return;
+      }
+
+      var fields = target.GetPrivateFieldsWith(typeof(T));
+
+      if (ensureMaximumOfOne && fields.Count() > 1)
+      {
+        throw new SpecificationUsageException(String.Format("You cannot have more than one {0} clause in {1}",
+                                                            typeof(T).Name,
+                                                            target.FullName));
+      }
+      var field = fields.FirstOrDefault();
+
+      if (field != null)
+      {
+        var val = (T) field.GetValue(instance);
+        items.Add(val);
+      }
+      CollectDetailsOf(target.BaseType, () => instance, items,ensureMaximumOfOne);
+      CollectDetailsOf(target.DeclaringType, () => Activator.CreateInstance(target.DeclaringType), items, ensureMaximumOfOne);
+    }
+
+    static List<T> ExtractPrivateFieldValues<T>(object instance, bool ensureMaximumOfOne)
     {
       var delegates = new List<T>();
       var type = instance.GetType();
-      while (type != null)
-      {
-        var fields = type.GetPrivateFieldsWith(typeof(T));
-
-        if (fields.Count() > 1)
-        {
-          throw new SpecificationUsageException(String.Format("You cannot have more than one {0} clause in {1}",
-                                                              typeof(T).Name,
-                                                              type.FullName));
-        }
-
-        var field = fields.FirstOrDefault();
-
-        if (field != null)
-        {
-          T val = (T) field.GetValue(instance);
-          delegates.Add(val);
-        }
-
-        type = type.BaseType;
-      }
+      CollectDetailsOf(type, () => instance, delegates,ensureMaximumOfOne);
 
       return delegates;
+    }
+
+    public static void ChangeAllowedNumberOfBecauseBlocksTo(int newValue)
+    {
+      _allowedNumberOfBecauseBlocks = newValue;
     }
   }
 }

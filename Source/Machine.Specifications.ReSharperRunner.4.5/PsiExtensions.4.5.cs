@@ -21,14 +21,17 @@ namespace Machine.Specifications.ReSharperRunner
 
       var contextBaseCandidate = !element.IsContext() &&
                                  clazz.IsValid() &&
-                                 clazz.GetContainingType() == null &&
-                                 clazz.GetAccessRights() == AccessRights.PUBLIC;
+                                 clazz.GetContainingType() == null;
       if (!contextBaseCandidate)
       {
         return false;
       }
 
+#if RESHARPER_6
+      IFinder finder = clazz.GetSolution().GetPsiServices().Finder;
+#else
       IFinder finder = clazz.GetManager().Finder;
+#endif
       var searchDomain = clazz.GetSearchDomain();
 
       var findResult = new InheritedContextFinder();

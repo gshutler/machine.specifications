@@ -48,7 +48,10 @@ namespace Machine.Specifications.Reporting.Specs.Visitors
     Then should_assign_a__next__link_to_the_report =
       () => Report.NextNotImplemented.ShouldEqual(First);
 
-    Then should_not_assign_a__previous__link_to_the_first_failed_spec =
+    Then should_assign_a__next__link_to_the_first_not_implemented_spec =
+      () => First.NextNotImplemented.ShouldEqual(Second);
+
+    Then should_not_assign_a__previous__link_to_the_first_not_implemented_spec =
       () => First.PreviousNotImplemented.ShouldBeNull();
 
     Then should_assign_a__next__link_to_the_second_failed_spec =

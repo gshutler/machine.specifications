@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
-using Machine.Specifications.ConsoleRunner.Properties;
+
 using Machine.Specifications.Reporting.Generation.Spark;
 using Machine.Specifications.Reporting.Generation.Xml;
 using Machine.Specifications.Reporting.Integration;
@@ -13,9 +13,8 @@ namespace Machine.Specifications.ConsoleRunner
 {
   public class Program
   {
-
+    [LoaderOptimization(LoaderOptimization.MultiDomainHost)]
     [STAThread]
-    [LoaderOptimization(LoaderOptimization.MultiDomain)]
     public static void Main(string[] args)
     {
       var program = new Program(new DefaultConsole());
@@ -38,7 +37,7 @@ namespace Machine.Specifications.ConsoleRunner
       Options options = new Options();
       if (!options.ParseArguments(arguments))
       {
-        _console.WriteLine(Resources.UsageStatement);
+        _console.WriteLine(Options.Usage());
         return ExitCode.Failure;
       }
 
@@ -46,9 +45,10 @@ namespace Machine.Specifications.ConsoleRunner
 
       var timingListener = new TimingRunListener();
       listeners.Add(timingListener);
+      listeners.Add(new AssemblyLocationAwareListener());
 
       ISpecificationRunListener mainListener;
-      if (options.TeamCityIntegration)
+      if (options.TeamCityIntegration || Environment.GetEnvironmentVariable("TEAMCITY_PROJECT_NAME") != null)
       {
         mainListener = new TeamCityReporter(_console.WriteLine, timingListener);
       }
@@ -69,7 +69,7 @@ namespace Machine.Specifications.ConsoleRunner
           else
           {
             _console.WriteLine("Invalid html path:" + options.HtmlPath);
-            _console.WriteLine(Resources.UsageStatement);
+            _console.WriteLine(Options.Usage());
             return ExitCode.Failure;
           }
 
@@ -79,12 +79,12 @@ namespace Machine.Specifications.ConsoleRunner
         {
           if (IsHtmlPathValid(options.XmlPath))
           {
-            listeners.Add(GetXmlReportListener(options));
+            listeners.Add(GetXmlReportListener(options, timingListener));
           }
           else
           {
             _console.WriteLine("Invalid xml path:" + options.XmlPath);
-            _console.WriteLine(Resources.UsageStatement);
+            _console.WriteLine(Options.Usage());
             return ExitCode.Failure;
           }
         }
@@ -93,7 +93,7 @@ namespace Machine.Specifications.ConsoleRunner
 
         if (options.AssemblyFiles.Count == 0)
         {
-          _console.WriteLine(Resources.UsageStatement);
+          _console.WriteLine(Options.Usage());
           return ExitCode.Failure;
         }
 
@@ -123,18 +123,17 @@ namespace Machine.Specifications.ConsoleRunner
       if (mainListener is ISpecificationResultProvider)
       {
         var errorProvider = (ISpecificationResultProvider)mainListener;
-        if (errorProvider.FailureOccured)
+        if (errorProvider.FailureOccurred)
         {
-          Console.WriteLine("Generic failure occurred, no idea what this is");
           return ExitCode.Failure;
         }
       }
       return ExitCode.Success;
     }
 
-    private static ISpecificationRunListener GetXmlReportListener(Options options)
+    private static ISpecificationRunListener GetXmlReportListener(Options options, TimingRunListener timer)
     {
-      var listener = new GenerateXmlReportListener(options.XmlPath, options.ShowTimeInformation);
+      var listener = new GenerateXmlReportListener(options.XmlPath, timer, options.ShowTimeInformation);
 
       return listener;
     }

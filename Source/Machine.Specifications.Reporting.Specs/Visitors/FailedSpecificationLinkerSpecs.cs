@@ -48,7 +48,7 @@ namespace Machine.Specifications.Reporting.Specs.Visitors
       () => Report.PreviousFailed.ShouldBeNull();
 
     Then should_assign_a__next__link_to_the_report =
-      () =>  Report.NextFailed.ShouldEqual(First);
+      () => Report.NextFailed.ShouldEqual(First);
 
     Then should_assign_a__next__link_to_the_first_failed_spec =
       () => First.NextFailed.ShouldEqual(Second);

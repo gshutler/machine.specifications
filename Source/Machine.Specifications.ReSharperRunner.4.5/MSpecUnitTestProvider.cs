@@ -18,6 +18,7 @@ using JetBrains.Util;
 using Machine.Specifications.ReSharperRunner.Explorers;
 using Machine.Specifications.ReSharperRunner.Factories;
 using Machine.Specifications.ReSharperRunner.Presentation;
+using Machine.Specifications.ReSharperRunner.Properties;
 using Machine.Specifications.ReSharperRunner.Runners;
 
 namespace Machine.Specifications.ReSharperRunner
@@ -35,7 +36,6 @@ namespace Machine.Specifications.ReSharperRunner
       Debug.Listeners.Add(new DefaultTraceListener());
     }
 
-    #region Implementation of IUnitTestProvider
     public string ID
     {
       get { return ProviderId; }
@@ -48,7 +48,7 @@ namespace Machine.Specifications.ReSharperRunner
 
     public Image Icon
     {
-      get { return null; }
+      get { return Resources.Logo; }
     }
 
     public string Serialize(UnitTestElement element)
@@ -173,6 +173,5 @@ namespace Machine.Specifications.ReSharperRunner
     {
       return element.IsContext() || element.IsSpecification();
     }
-    #endregion
   }
 }

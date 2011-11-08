@@ -4,6 +4,7 @@ using JetBrains.ReSharper.TaskRunnerFramework;
 
 using Machine.Specifications.ReSharperRunner.Tasks;
 using Machine.Specifications.Utility;
+using Machine.Specifications.Utility.Internal;
 
 namespace Machine.Specifications.ReSharperRunner.Runners.Notifications
 {
@@ -33,7 +34,6 @@ namespace Machine.Specifications.ReSharperRunner.Runners.Notifications
       get
       {
         yield return _node.RemoteTask;
-        yield return _node.Parent.RemoteTask;
       }
     }
   }

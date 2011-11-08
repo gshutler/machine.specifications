@@ -1,10 +1,8 @@
 ﻿using System.Collections.Generic;
 
-using Newtonsoft.Json;
-
 namespace Machine.Specifications.Reporting.Model
 {
-  public class Specification : ISpecificationNode, ILinkTarget, ILinkToCanFail, ILinkToNotImplemented
+  public class Specification : ISpecificationNode, ILinkTarget, ILinkToCanFail, ILinkToNotImplemented, ILinkToIgnored
   {
     readonly ExceptionResult _exception;
     readonly string _name;
@@ -50,7 +48,6 @@ namespace Machine.Specifications.Reporting.Model
       visitor.Visit(this);
     }
 
-    [JsonIgnore]
     public IEnumerable<ISpecificationNode> Children
     {
       get { yield break; }
@@ -75,6 +72,18 @@ namespace Machine.Specifications.Reporting.Model
     }
 
     public ILinkTarget PreviousNotImplemented
+    {
+      get;
+      set;
+    }
+
+    public ILinkTarget NextIgnored
+    {
+      get;
+      set;
+    }
+
+    public ILinkTarget PreviousIgnored
     {
       get;
       set;

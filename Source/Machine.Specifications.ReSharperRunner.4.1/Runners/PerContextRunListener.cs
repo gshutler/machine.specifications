@@ -1,4 +1,7 @@
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 
 using JetBrains.ReSharper.TaskRunnerFramework;
 
@@ -19,7 +22,6 @@ namespace Machine.Specifications.ReSharperRunner.Runners
       _contextTask = contextNode;
     }
 
-    #region Implementation of ISpecificationRunListener
     public void OnAssemblyStart(AssemblyInfo assembly)
     {
     }
@@ -100,7 +102,6 @@ namespace Machine.Specifications.ReSharperRunner.Runners
       _server.TaskException(_contextTask, ExceptionResultConverter.ConvertExceptions(exception, out message));
       _server.TaskFinished(_contextTask, message, TaskResult.Exception);
     }
-    #endregion
 
     internal void RegisterTaskNotification(RemoteTaskNotification notification)
     {
@@ -115,6 +116,11 @@ namespace Machine.Specifications.ReSharperRunner.Runners
           {
             if (notification.Matches(specification))
             {
+              Debug.WriteLine(String.Format("Notifcation for {0} {1}, with {2} remote tasks",
+                                            specification.ContainingType,
+                                            specification.FieldName,
+                                            notification.RemoteTasks.Count()));
+
               foreach (var task in notification.RemoteTasks)
               {
                 actionToBePerformedForEachTask(task);
@@ -124,8 +130,6 @@ namespace Machine.Specifications.ReSharperRunner.Runners
         };
     }
 
-    #region Nested type: Action
     delegate void Action<T>(T arg);
-    #endregion
   }
 }

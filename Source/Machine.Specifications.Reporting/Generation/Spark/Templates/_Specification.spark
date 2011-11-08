@@ -1,4 +1,4 @@
-﻿<a name="${spec.Id}">${spec.Name}</a>
+﻿<span id="${spec.Id}">${spec.Name}</span>
 
 <if condition="spec.Status == Status.Failing">
   <div class="failure">
@@ -30,6 +30,23 @@
     <li class="next notimplemented">
       <a if="spec.NextNotImplemented != null"
          href="#${spec.NextNotImplemented.Id}" title="Go to next not implemented specification">&dArr;</a>
+    </li>
+  </ul>
+</div>
+
+<div if="spec.Status == Status.Ignored"
+     class="ignored">
+  &lArr; IGNORED
+  <ul class="prev-next">
+    <li class="prev ignored">
+      <a if="spec.PreviousIgnored != null"
+         href="#${spec.PreviousIgnored.Id}"
+         title="Go to previous ignored specification">&uArr;</a>
+    </li>
+    <li class="next ignored">
+      <a if="spec.NextIgnored != null"
+         href="#${spec.NextIgnored.Id}"
+         title="Go to next ignored specification">&dArr;</a>
     </li>
   </ul>
 </div>

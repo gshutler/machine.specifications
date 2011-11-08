@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using System.Reflection;
 using Machine.Specifications.ConsoleRunner.Properties;
@@ -16,7 +17,7 @@ namespace Machine.Specifications.ConsoleRunner.Specs
       program.Run(new string[] {});
 
     Then should_print_usage_statement = ()=>
-      console.Lines.ShouldContain(Resources.UsageStatement);
+      console.Lines.ShouldContain(Options.Usage());
   }
 
   [Subject("Console runner")]
@@ -46,6 +47,9 @@ namespace Machine.Specifications.ConsoleRunner.Specs
 
     Then should_write_the_count_of_specifications = ()=>
       console.ShouldContainLineWith("Specifications: 6");
+    
+    It should_write_the_run_time = ()=>
+      console.ShouldContainLineWith("Time: ");
   }
 
   [Subject("Console runner")]
@@ -116,8 +120,26 @@ namespace Machine.Specifications.ConsoleRunner.Specs
       console.ShouldNotContainLineWith("Account Funds transfer, when transferring between two accounts");
   }
 
+  [Subject("Console runner")]
+  public class when_running_from_directory_different_from_assembly_location : ConsoleRunnerSpecs
+  {
+    Because of = () =>
+      program.Run(new[] { GetPath(@"ExternalFile\Machine.Specifications.Example.UsingExternalFile.dll") });
+
+    It should_pass_the_specification_which_depends_on_external_file = () =>
+      console.Lines.ShouldContain(
+        "External resources usage, when using file copied to assembly output directory", 
+        "» should be able to locate it by relative path");
+
+    It should_pass_all_specifications = () =>
+      console.ShouldNotContainLineWith("failed");
+  }
+
   public class ConsoleRunnerSpecs
   {
+    const string TeamCityIndicator = "TEAMCITY_PROJECT_NAME";
+    static string TeamCityEnvironment;
+
     public static Program program;
     public static FakeConsole console;
 
@@ -125,6 +147,17 @@ namespace Machine.Specifications.ConsoleRunner.Specs
     {
       console = new FakeConsole();
       program = new Program(console);
+
+      TeamCityEnvironment = Environment.GetEnvironmentVariable(TeamCityIndicator);
+      Environment.SetEnvironmentVariable(TeamCityIndicator, String.Empty);
+    };
+
+    Cleanup after = () =>
+    {
+      if (TeamCityEnvironment != null)
+      {
+        Environment.SetEnvironmentVariable(TeamCityIndicator, TeamCityEnvironment);
+      }
     };
 
     protected static string GetPath(string path)

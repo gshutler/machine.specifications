@@ -12,21 +12,24 @@ namespace Machine.Specifications.ReSharperRunner.Factories
   internal class BehaviorSpecificationFactory
   {
     readonly ProjectModelElementEnvoy _projectEnvoy;
-    readonly IUnitTestProvider _provider;
+    readonly MSpecUnitTestProvider _provider;
+    readonly IProject _project;
 
-    public BehaviorSpecificationFactory(IUnitTestProvider provider, ProjectModelElementEnvoy projectEnvoy)
+    public BehaviorSpecificationFactory(MSpecUnitTestProvider provider, IProject project, ProjectModelElementEnvoy projectEnvoy)
     {
       _provider = provider;
+      _project = project;
       _projectEnvoy = projectEnvoy;
     }
 
     BehaviorSpecificationElement CreateBehaviorSpecification(BehaviorElement behavior,
                                                              IMetadataField behaviorSpecification)
     {
-      return new BehaviorSpecificationElement(_provider,
+      return GetOrCreateBehaviorSpecification(_provider,
+                                              _project,
                                               behavior,
                                               _projectEnvoy,
-                                              behaviorSpecification.DeclaringType.FullyQualifiedName,
+                                              behavior.FullyQualifiedTypeName ?? behaviorSpecification.DeclaringType.FullyQualifiedName,
                                               behaviorSpecification.Name,
                                               behaviorSpecification.IsIgnored());
     }
@@ -44,8 +47,7 @@ namespace Machine.Specifications.ReSharperRunner.Factories
     }
 
     public IEnumerable<BehaviorSpecificationElement> CreateBehaviorSpecificationsFromBehavior(BehaviorElement behavior,
-                                                                                              IDeclaredElement
-                                                                                                behaviorSpecification)
+                                                                                              IDeclaredElement behaviorSpecification)
     {
       IClass typeContainingBehaviorSpecifications = behaviorSpecification.GetFirstGenericArgument();
 
@@ -58,12 +60,38 @@ namespace Machine.Specifications.ReSharperRunner.Factories
     BehaviorSpecificationElement CreateBehaviorSpecification(BehaviorElement behavior,
                                                              IDeclaredElement behaviorSpecification)
     {
-      return new BehaviorSpecificationElement(_provider,
+      return GetOrCreateBehaviorSpecification(_provider,
+                                              _project,
                                               behavior,
                                               _projectEnvoy,
-                                              behaviorSpecification.GetContainingType().CLRName,
-                                              behaviorSpecification.ShortName,
+#if RESHARPER_6
+                                              behavior.FullyQualifiedTypeName ?? ((ITypeMember)behaviorSpecification).GetContainingType().GetClrName().FullName,
+#else
+                                              behavior.FullyQualifiedTypeName ?? behaviorSpecification.GetContainingType().CLRName,
+#endif
+ behaviorSpecification.ShortName,
                                               behaviorSpecification.IsIgnored());
+    }
+
+    public static BehaviorSpecificationElement GetOrCreateBehaviorSpecification(MSpecUnitTestProvider provider, IProject project, BehaviorElement behavior, ProjectModelElementEnvoy projectEnvoy, string declaringTypeName, string fieldName, bool isIgnored)
+    {
+#if RESHARPER_6
+      var id = BehaviorSpecificationElement.CreateId(behavior, fieldName);
+      var behaviorSpecification = provider.UnitTestManager.GetElementById(project, id) as BehaviorSpecificationElement;
+      if (behaviorSpecification != null)
+      {
+        behaviorSpecification.Parent = behavior;
+        behaviorSpecification.State = UnitTestElementState.Valid;
+        return behaviorSpecification;
+      }
+#endif
+
+      return new BehaviorSpecificationElement(provider,
+                                              behavior,
+                                              projectEnvoy,
+                                              declaringTypeName,
+                                              fieldName,
+                                              isIgnored);
     }
   }
 }

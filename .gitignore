@@ -1,15 +1,19 @@
 /Source/*/obj
 /Source/*/bin
 _ReSharper.*
-*.csproj.user
-*.[Rr]e[Ss]harper.user
-*.resharper
+*.user
 *.suo
+*.csproj[1-9]*
 *.cache
 *~
 *.swp
 NDependOut
+*mm_cache.bin
 
 /Build
 /Distribution
-/Specs/*.xml
+/Specs
+install.ps1
+mspec.nuspec
+Source/Machine.Specifications.GallioAdapter.3.1/Machine.Specifications.GallioAdapter.plugin
+Source/Machine.Specifications.TDNetRunner/Machine.Specifications.dll.tdnet

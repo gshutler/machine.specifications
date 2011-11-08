@@ -15,7 +15,6 @@ namespace Machine.Specifications.ReSharperRunner.Tasks
     {
     }
 
-    #region Implementation of IEquatable<ContextTask>
     public bool Equals(ContextTask other)
     {
       if (other == null || !base.Equals(other))
@@ -25,7 +24,6 @@ namespace Machine.Specifications.ReSharperRunner.Tasks
 
       return true;
     }
-    #endregion
 
     public override bool Equals(object other)
     {
@@ -36,5 +34,14 @@ namespace Machine.Specifications.ReSharperRunner.Tasks
     {
       return base.GetHashCode();
     }
+
+#if RESHARPER_6
+
+    public override bool IsMeaningfulTask
+    {
+      get { return false; }
+    }
+
+#endif
   }
 }

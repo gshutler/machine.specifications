@@ -10,6 +10,11 @@ using JetBrains.ProjectModel;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.ReSharper.TaskRunnerFramework;
+#if RESHARPER_6
+using JetBrains.ReSharper.TaskRunnerFramework.UnitTesting;
+using JetBrains.ReSharper.UnitTestExplorer;
+using System.Xml;
+#endif
 using JetBrains.ReSharper.UnitTestFramework;
 using JetBrains.ReSharper.UnitTestFramework.UI;
 using JetBrains.ReSharper.UnitTestExplorer;
@@ -20,6 +25,7 @@ using JetBrains.Util;
 using Machine.Specifications.ReSharperRunner.Explorers;
 using Machine.Specifications.ReSharperRunner.Factories;
 using Machine.Specifications.ReSharperRunner.Presentation;
+using Machine.Specifications.ReSharperRunner.Properties;
 using Machine.Specifications.ReSharperRunner.Runners;
 
 namespace Machine.Specifications.ReSharperRunner
@@ -37,7 +43,6 @@ namespace Machine.Specifications.ReSharperRunner
       Debug.Listeners.Add(new DefaultTraceListener());
     }
 
-    #region Implementation of IUnitTestProvider
     public string ID
     {
       get { return ProviderId; }
@@ -50,15 +55,23 @@ namespace Machine.Specifications.ReSharperRunner
 
     public Image Icon
     {
-      get { return null; }
+      get { return Resources.Logo; }
     }
 
+#if RESHARPER_6
+    public string Serialize(XmlElement element)
+#else
     public string Serialize(UnitTestElement element)
+#endif
     {
       return null;
     }
 
+#if RESHARPER_6
+    public XmlElement Deserialize(ISolution solution, string elementString)
+#else
     public UnitTestElement Deserialize(ISolution solution, string elementString)
+#endif
     {
       return null;
     }
@@ -191,6 +204,5 @@ namespace Machine.Specifications.ReSharperRunner
 
       return false;
     }
-    #endregion
   }
 }
