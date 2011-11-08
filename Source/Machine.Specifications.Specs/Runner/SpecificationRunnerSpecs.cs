@@ -317,7 +317,7 @@ namespace Machine.Specifications.Specs.Runner
   [Subject("Specification Runner")]
   public class when_running_with_empty_filters
   {
-    Establish context = () =>
+    Given context = () =>
     {
       testListener = new TestListener();
       var options = new RunOptions(new string[] { }, new string[] { }, new string[0]);
@@ -325,7 +325,7 @@ namespace Machine.Specifications.Specs.Runner
       runner = new DefaultRunner(testListener, options);
     };
 
-    Because of = () =>
+    When of = () =>
       {
         runner.RunMember(typeof(context_with_multiple_specifications).Assembly,
                          typeof(context_with_multiple_specifications));
@@ -333,7 +333,7 @@ namespace Machine.Specifications.Specs.Runner
                          typeof(context_with_duplicate_tags));
       };
 
-    It should_run_everything = () =>
+    Then should_run_everything = () =>
       testListener.SpecCount.ShouldEqual(3);
 
     static DefaultRunner runner;
@@ -343,7 +343,7 @@ namespace Machine.Specifications.Specs.Runner
   [Subject("Specification Runner")]
   public class when_running_with_context_filters
   {
-    Establish context = () =>
+    Given context = () =>
     {
       testListener = new TestListener();
       var options = new RunOptions(new string[] {}, new string[] {}, new []{ "Machine.Specifications.Specs.context_with_multiple_specifications" });
@@ -351,7 +351,7 @@ namespace Machine.Specifications.Specs.Runner
       runner = new DefaultRunner(testListener, options);
     };
 
-    Because of = () =>
+    When of = () =>
       {
         runner.RunMember(typeof(context_with_multiple_specifications).Assembly,
                          typeof(context_with_multiple_specifications));
@@ -359,7 +359,7 @@ namespace Machine.Specifications.Specs.Runner
                          typeof(context_with_duplicate_tags));
       };
 
-    It should_run_included_contexts_only = () =>
+    Then should_run_included_contexts_only = () =>
       testListener.SpecCount.ShouldEqual(2);
 
     static DefaultRunner runner;
@@ -369,7 +369,7 @@ namespace Machine.Specifications.Specs.Runner
   [Subject("Specification Runner")]
   public class when_running_with_specification_filters
   {
-    Establish context = () =>
+    Given context = () =>
     {
       testListener = new TestListener();
       var options = new RunOptions(new string[] { },
@@ -383,7 +383,7 @@ namespace Machine.Specifications.Specs.Runner
       runner = new DefaultRunner(testListener, options);
     };
 
-    Because of = () =>
+    When of = () =>
       {
         runner.RunMember(typeof(context_with_multiple_specifications).Assembly,
                          typeof(context_with_multiple_specifications));
@@ -391,7 +391,7 @@ namespace Machine.Specifications.Specs.Runner
                          typeof(context_with_duplicate_tags));
       };
 
-    It should_run_included_specifications_only = () =>
+    Then should_run_included_specifications_only = () =>
       testListener.SpecCount.ShouldEqual(3);
 
     static DefaultRunner runner;

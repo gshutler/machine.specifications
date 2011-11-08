@@ -32,7 +32,7 @@ namespace Machine.Specifications.ReSharperRunner
 
     public static IEnumerable<IMetadataField> GetSpecifications(this IMetadataTypeInfo type)
     {
-        var privateFieldsOfType = type.GetPrivateFieldsOfType<It>();
+        var privateFieldsOfType = type.GetPrivateFieldsOfType<Then>();
         return privateFieldsOfType;
     }
 

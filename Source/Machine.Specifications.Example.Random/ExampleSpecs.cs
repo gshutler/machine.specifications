@@ -53,7 +53,7 @@ namespace Machine.Specifications.Specs
 
   public class context_with_unimplemented_specs
   {
-    It should_be_unimplemented;
+    Then should_be_unimplemented;
   }
   
   [Ignore]
@@ -79,7 +79,7 @@ namespace Machine.Specifications.Specs
   {
     public static bool IgnoredSpecRan;
 
-    It should_be_ignored = () =>
+    Then should_be_ignored = () =>
       IgnoredSpecRan = true;
   }
 
@@ -88,7 +88,7 @@ namespace Machine.Specifications.Specs
     public static bool IgnoredSpecRan;
 
     [Ignore("just because")]
-    It should_be_ignored = () =>
+    Then should_be_ignored = () =>
       IgnoredSpecRan = true;
   }
 
@@ -122,50 +122,50 @@ namespace Machine.Specifications.Specs
   [Subject(typeof(int), "Parent description")]
   public class parent_context
   {
-    It should_be_able_to_assert_something = () =>
+    Then should_be_able_to_assert_something = () =>
       true.ShouldBeTrue();
 
     public class nested_context
     {
-      It should_be_able_to_assert_something_else = () =>
+      Then should_be_able_to_assert_something_else = () =>
         false.ShouldBeFalse();
     }
 
     public class nested_context_inheriting_another_concern : context_with_subject
     {
-      It should_be_able_to_assert_something_else = () =>
+      Then should_be_able_to_assert_something_else = () =>
         false.ShouldBeFalse();
     }
 
     [Subject(typeof(int), "Nested description")]
     public class nested_context_inheriting_and_owning_a_concern : context_with_subject
     {
-      It should_be_able_to_assert_something_else = () =>
+      Then should_be_able_to_assert_something_else = () =>
         false.ShouldBeFalse();
     }
   }
 
   public class parent_context_without_concern
   {
-    It should_be_able_to_assert_something = () =>
+    Then should_be_able_to_assert_something = () =>
       true.ShouldBeTrue();
 
     public class nested_context
     {
-      It should_be_able_to_assert_something_else = () =>
+      Then should_be_able_to_assert_something_else = () =>
         false.ShouldBeFalse();
     }
   }
 
   public class parent_context_that_has_its_own_because_block
   {
-    Because of = () =>
+    When of = () =>
     {
     };
 
     public class nested_context_that_has_a_because_block_which
     {
-      Because of = () =>
+      When of = () =>
       {
       };
     }

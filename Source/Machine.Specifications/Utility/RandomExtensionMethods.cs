@@ -30,9 +30,9 @@ namespace Machine.Specifications.Utility
       actions.Each(x => x());
     }
 
-    internal static void InvokeAll(this IEnumerable<Because> becauseActions)
+    internal static void InvokeAll(this IEnumerable<When> becauseActions)
     {
-      becauseActions.AllNonNull().Select<Because, Action>(x => x.Invoke).InvokeAll();
+        becauseActions.AllNonNull().Select<When, Action>(x => x.Invoke).InvokeAll();
     }
 
     internal static void InvokeAll(this IEnumerable<Cleanup> contextActions)

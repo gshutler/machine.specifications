@@ -50,8 +50,8 @@ namespace Machine.Specifications.Model
 
     public Context(Type type,
                    object instance,
-                   IEnumerable<Establish> contextClauses,
-                   IEnumerable<Because> becauseClauses,
+                   IEnumerable<Given> contextClauses,
+                   IEnumerable<When> becauseClauses,
                    IEnumerable<Cleanup> cleanupClauses,
                    Subject subject,
                    bool isIgnored,

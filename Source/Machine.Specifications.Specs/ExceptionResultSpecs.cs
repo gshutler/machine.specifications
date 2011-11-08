@@ -33,12 +33,12 @@ namespace Machine.Specifications.Specs
   {
     static ExceptionResult Result;
 
-    Because of = () => { Result = new ExceptionResult(Throw.Exception()); };
+    When of = () => { Result = new ExceptionResult(Throw.Exception()); };
 
-    It should_remove_framework_stack_lines =
+    Then should_remove_framework_stack_lines =
       () => Result.StackTrace.ShouldNotContain(" Machine.Specifications.");
 
-    It should_keep_user_stack_lines =
+    Then should_keep_user_stack_lines =
       () => Result.StackTrace.ShouldContain(" SomeProject.Specs.Throw.Exception");
   }
 }

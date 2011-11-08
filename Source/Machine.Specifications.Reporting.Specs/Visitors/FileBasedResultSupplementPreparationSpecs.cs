@@ -17,7 +17,7 @@ namespace Machine.Specifications.Reporting.Specs.Visitors
     static Run Report;
     static Func<string> ResourcePathCreator;
 
-    Establish context = () =>
+    Given context = () =>
     {
       ResourcePathCreator = MockRepository.GenerateStub<Func<string>>();
 
@@ -33,9 +33,9 @@ namespace Machine.Specifications.Reporting.Specs.Visitors
                      ));
     };
 
-    Because of = () => Preparation.Visit(Report);
+    When of = () => Preparation.Visit(Report);
 
-    It should_not_create_the_folder_for_supplements =
+    Then should_not_create_the_folder_for_supplements =
       () => ResourcePathCreator.AssertWasNotCalled(x => x());
   }
 
