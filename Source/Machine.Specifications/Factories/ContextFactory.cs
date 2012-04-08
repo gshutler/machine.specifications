@@ -32,8 +32,9 @@ namespace Machine.Specifications.Factories
     public Context CreateContextFrom(object instance)
     {
       var type = instance.GetType();
-      var fieldInfos = type.GetPrivateFieldsOfType<Then>()
-        .Union(type.GetPrivateFieldsWith(typeof(Behaves_like<>)));
+
+      var fieldInfos = type.GetInstanceFieldsOfType<Then>()
+        .Union(type.GetInstanceFieldsOfType(typeof(Behaves_like<>)));
 
       return CreateContextFrom(instance, fieldInfos);
     }
@@ -41,7 +42,7 @@ namespace Machine.Specifications.Factories
     Context CreateContextFrom(object instance, IEnumerable<FieldInfo> acceptedSpecificationFields)
     {
       var type = instance.GetType();
-      var fieldInfos = type.GetPrivateFields();
+      var fieldInfos = type.GetInstanceFields();
       var itFieldInfos = new List<FieldInfo>();
       var itShouldBehaveLikeFieldInfos = new List<FieldInfo>();
 
@@ -161,29 +162,45 @@ namespace Machine.Specifications.Factories
       {
         return;
       }
-      var instance = instanceResolver();
-      if (instance == null)
+
+      if (target.IsAbstract)
       {
-        return;
+        
       }
 
-      var fields = target.GetPrivateFieldsWith(typeof(T));
-
-      if (ensureMaximumOfOne && fields.Count() > 1)
+      if (!IsStatic(target))
       {
-        throw new SpecificationUsageException(String.Format("You cannot have more than one {0} clause in {1}",
-                                                            typeof(T).Name,
-                                                            target.FullName));
-      }
-      var field = fields.FirstOrDefault();
+        var instance = instanceResolver();
+        if (instance == null)
+        {
+          return;
+        }
 
-      if (field != null)
-      {
-        var val = (T) field.GetValue(instance);
-        items.Add(val);
+        var fields = target.GetInstanceFieldsOfType(typeof(T));
+
+        if (ensureMaximumOfOne && fields.Count() > 1)
+        {
+          throw new SpecificationUsageException(String.Format("You cannot have more than one {0} clause in {1}",
+                                                              typeof(T).Name,
+                                                              target.FullName));
+        }
+        var field = fields.FirstOrDefault();
+
+        if (field != null)
+        {
+          var val = (T) field.GetValue(instance);
+          items.Add(val);
+        }
+
+        CollectDetailsOf(target.BaseType, () => instance, items, ensureMaximumOfOne);
       }
-      CollectDetailsOf(target.BaseType, () => instance, items,ensureMaximumOfOne);
+
       CollectDetailsOf(target.DeclaringType, () => Activator.CreateInstance(target.DeclaringType), items, ensureMaximumOfOne);
+    }
+
+    static bool IsStatic(Type target)
+    {
+      return target.IsAbstract && target.IsSealed;
     }
 
     static List<T> ExtractPrivateFieldValues<T>(object instance, bool ensureMaximumOfOne)

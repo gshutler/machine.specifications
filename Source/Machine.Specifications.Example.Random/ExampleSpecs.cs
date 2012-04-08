@@ -284,4 +284,40 @@ namespace Machine.Specifications.Specs
       Then should_be_run = () => { };
     }
   }
+
+  [Tags(tag.example)]
+  public class context_with_public_It_field
+  {
+    public Then should;
+  }
+
+  [Tags(tag.example)]
+  public class context_with_protected_It_field
+  {
+    protected Then should;
+  }
+
+  [Tags(tag.example)]
+  public class context_with_internal_It_field
+  {
+    internal Then should;
+  }
+
+  [Tags(tag.example)]
+  public class context_with_public_Behaves_like_field
+  {
+    public Behaves_like<Behaviors> behavior;
+  }
+
+  [Tags(tag.example)]
+  public class context_with_nonprivate_framework_fields
+  {
+    public Given establish;
+    public When because;
+    public Cleanup cleanup;
+
+    internal Behaves_like<Behaviors> behavior;
+    protected Then specification;
+    Then private_specification;
+  }
 }

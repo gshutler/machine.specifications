@@ -1,14 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Xml;
 
 using JetBrains.ProjectModel;
 using JetBrains.ReSharper.Psi;
+using JetBrains.ReSharper.Psi.Caches;
 using JetBrains.ReSharper.UnitTestFramework;
+#if RESHARPER_61
+using JetBrains.ReSharper.UnitTestFramework.Elements;
+#endif
 using JetBrains.Util;
 
-using Machine.Specifications.Factories;
 using Machine.Specifications.Utility.Internal;
 
 using ContextFactory = Machine.Specifications.ReSharperRunner.Factories.ContextFactory;
@@ -17,19 +19,23 @@ namespace Machine.Specifications.ReSharperRunner.Presentation
 {
   public class ContextElement : Element, ISerializableElement
   {
+    readonly string _id;
     readonly string _assemblyLocation;
     readonly string _subject;
     readonly IEnumerable<UnitTestElementCategory> _categories;
 
     public ContextElement(MSpecUnitTestProvider provider,
+                          PsiModuleManager psiModuleManager,
+                          CacheManager cacheManager, 
                           ProjectModelElementEnvoy projectEnvoy,
                           string typeName,
                           string assemblyLocation,
                           string subject,
                           IEnumerable<string> tags,
                           bool isIgnored)
-      : base(provider, null, projectEnvoy, typeName, isIgnored)
+      : base(provider, psiModuleManager, cacheManager, null, projectEnvoy, typeName, isIgnored)
     {
+      _id = CreateId(subject, TypeName);
       _assemblyLocation = assemblyLocation;
       _subject = subject;
 
@@ -79,23 +85,23 @@ namespace Machine.Specifications.ReSharperRunner.Presentation
       get { return _categories; }
     }
 
-    public override string Id
-    {
-      get { return CreateId(_subject, TypeName); }
-    }
-
     public void WriteToXml(XmlElement parent)
     {
+      parent.SetAttribute("projectId", GetProject().GetPersistentID());
       parent.SetAttribute("typeName", TypeName);
-      parent.GetAttribute("assemblyLocation", AssemblyLocation);
+      parent.SetAttribute("assemblyLocation", AssemblyLocation);
       parent.SetAttribute("isIgnored", Explicit.ToString());
-      parent.GetAttribute("subject", GetSubject());
+      parent.SetAttribute("subject", _subject);
     }
 
-    public static IUnitTestElement ReadFromXml(XmlElement parent, IUnitTestElement parentElement, MSpecUnitTestProvider provider)
+    public static IUnitTestElement ReadFromXml(XmlElement parent, IUnitTestElement parentElement, MSpecUnitTestProvider provider, ISolution solution
+#if RESHARPER_61
+      , IUnitTestElementManager manager, PsiModuleManager psiModuleManager, CacheManager cacheManager
+#endif
+      )
     {
       var projectId = parent.GetAttribute("projectId");
-      var project = ProjectUtil.FindProjectElementByPersistentID(provider.Solution, projectId) as IProject;
+      var project = ProjectUtil.FindProjectElementByPersistentID(solution, projectId) as IProject;
       if (project == null)
       {
         return null;
@@ -107,6 +113,9 @@ namespace Machine.Specifications.ReSharperRunner.Presentation
       var subject = parent.GetAttribute("subject");
 
       return ContextFactory.GetOrCreateContextElement(provider,
+#if RESHARPER_61
+                                                      manager, psiModuleManager, cacheManager,
+#endif
                                                       project,
                                                       ProjectModelElementEnvoy.Create(project),
                                                       typeName,
@@ -116,11 +125,14 @@ namespace Machine.Specifications.ReSharperRunner.Presentation
                                                       isIgnored);
     }
 
+    public override string Id
+    {
+      get { return _id; }
+    }
+
     public static string CreateId(string subject, string typeName)
     {
-      var id = String.Format("{0}.{1}", subject, typeName);
-      System.Diagnostics.Debug.WriteLine("CE  " + id);
-      return id;
+      return String.Format("{0}.{1}", subject, typeName);
     }
   }
 }

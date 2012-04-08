@@ -89,7 +89,7 @@ namespace Machine.Specifications.Reporting.Specs.Generation.Spark
     When of = () => Generator.GenerateReport(Run);
 
     Then should_create_a_directory_for_the_report_resources =
-      () => FileSystem.AssertWasCalled(x => x.CreateOrOverwriteDirectory(ResourceDirectory));
+      () => FileSystem.AssertWasCalled(x => x.EnsureDirectoryExists(ResourceDirectory), o => o.Repeat.Once());
 
     Then should_overwrite_existing_reports =
       () => FileSystem.AssertWasCalled(x => x.DeleteIfFileExists(Arg<string>.Is.Anything));
@@ -158,7 +158,7 @@ namespace Machine.Specifications.Reporting.Specs.Generation.Spark
     When of = () => Generator.GenerateReport(Run);
 
     Then should_create_a_directory_for_the_report_resources =
-      () => FileSystem.AssertWasCalled(x => x.CreateOrOverwriteDirectory(ResourceDirectory));
+      () => FileSystem.AssertWasCalled(x => x.EnsureDirectoryExists(ResourceDirectory));
 
     Then should_overwrite_existing_reports_and_summaries =
       () => FileSystem.AssertWasCalled(x => x.DeleteIfFileExists(Arg<string>.Is.Anything),
@@ -289,7 +289,7 @@ namespace Machine.Specifications.Reporting.Specs.Generation.Spark
 
     Given context = () =>
       {
-        ReportPath = @"C:\path\to\the\report.html";
+        ReportPath = @"C:\path\to\the\report";
 
         FileSystem = MockRepository.GenerateStub<IFileSystem>();
         FileSystem

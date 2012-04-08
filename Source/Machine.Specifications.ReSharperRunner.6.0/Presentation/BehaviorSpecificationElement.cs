@@ -3,7 +3,12 @@ using System.Collections.Generic;
 using System.Xml;
 
 using JetBrains.ProjectModel;
+using JetBrains.ReSharper.Psi;
+using JetBrains.ReSharper.Psi.Caches;
 using JetBrains.ReSharper.UnitTestFramework;
+#if RESHARPER_61
+using JetBrains.ReSharper.UnitTestFramework.Elements;
+#endif
 
 using Machine.Specifications.ReSharperRunner.Factories;
 
@@ -11,7 +16,11 @@ namespace Machine.Specifications.ReSharperRunner.Presentation
 {
   public class BehaviorSpecificationElement : FieldElement
   {
+    readonly string _id;
+
     public BehaviorSpecificationElement(MSpecUnitTestProvider provider,
+                                        PsiModuleManager psiModuleManager,
+                                        CacheManager cacheManager,
       // ReSharper disable SuggestBaseTypeForParameter
                                         BehaviorElement behavior,
       // ReSharper restore SuggestBaseTypeForParameter
@@ -19,8 +28,9 @@ namespace Machine.Specifications.ReSharperRunner.Presentation
                                         string declaringTypeName,
                                         string fieldName,
                                         bool isIgnored)
-      : base(provider, behavior, projectEnvoy, declaringTypeName, fieldName, isIgnored || behavior.Explicit)
+      : base(provider, psiModuleManager, cacheManager, behavior, projectEnvoy, declaringTypeName, fieldName, isIgnored || behavior.Explicit)
     {
+      _id = CreateId(behavior, fieldName);
     }
 
     public BehaviorElement Behavior
@@ -38,10 +48,14 @@ namespace Machine.Specifications.ReSharperRunner.Presentation
       get { return UnitTestElementCategory.Uncategorized; }
     }
 
-    public static IUnitTestElement ReadFromXml(XmlElement parent, IUnitTestElement parentElement, MSpecUnitTestProvider provider)
+    public static IUnitTestElement ReadFromXml(XmlElement parent, IUnitTestElement parentElement, MSpecUnitTestProvider provider, ISolution solution
+#if RESHARPER_61
+      , IUnitTestElementManager manager, PsiModuleManager psiModuleManager, CacheManager cacheManager
+#endif
+      )
     {
       var projectId = parent.GetAttribute("projectId");
-      var project = ProjectUtil.FindProjectElementByPersistentID(provider.Solution, projectId) as IProject;
+      var project = ProjectUtil.FindProjectElementByPersistentID(solution, projectId) as IProject;
       if (project == null)
       {
         return null;
@@ -57,19 +71,21 @@ namespace Machine.Specifications.ReSharperRunner.Presentation
       var methodName = parent.GetAttribute("methodName");
       var isIgnored = bool.Parse(parent.GetAttribute("isIgnored"));
 
-      return BehaviorSpecificationFactory.GetOrCreateBehaviorSpecification(provider, project, behavior, ProjectModelElementEnvoy.Create(project), typeName, methodName, isIgnored);
+      return BehaviorSpecificationFactory.GetOrCreateBehaviorSpecification(provider,
+#if RESHARPER_61
+        manager, psiModuleManager, cacheManager,
+#endif
+        project, behavior, ProjectModelElementEnvoy.Create(project), typeName, methodName, isIgnored);
     }
 
     public override string Id
     {
-      get { return CreateId(Behavior, FieldName); }
+      get { return _id; }
     }
 
-    public static string CreateId(BehaviorElement parent, string fieldName)
+    public static string CreateId(BehaviorElement behaviorElement, string fieldName)
     {
-      var id = String.Format("{0}.{1}", parent.Id, fieldName);
-      System.Diagnostics.Debug.WriteLine("BSE " + id);
-      return id;
+      return String.Format("{0}.{1}", behaviorElement.Id, fieldName);
     }
   }
 }

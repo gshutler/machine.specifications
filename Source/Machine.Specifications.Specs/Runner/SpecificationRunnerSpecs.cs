@@ -1,5 +1,6 @@
 ﻿using System;
 using Machine.Specifications.Example;
+using Machine.Specifications.Example.Random;
 using Machine.Specifications.FailingExample;
 using Machine.Specifications.Runner;
 using Machine.Specifications.Runner.Impl;
@@ -396,6 +397,76 @@ namespace Machine.Specifications.Specs.Runner
 
     static DefaultRunner runner;
     static TestListener testListener;
+  }
+
+  [Subject("Specification Runner")]
+  public class when_running_a_context_with_public_Its
+    : RunnerSpecs
+  {
+    When of = Run<context_with_public_It_field>;
+
+    Then should_succeed =
+      () => testListener.SpecCount.ShouldEqual(1);
+  }
+
+  [Subject("Specification Runner")]
+  public class when_running_a_context_with_protected_Its
+    : RunnerSpecs
+  {
+    When of = Run<context_with_protected_It_field>;
+
+    Then should_succeed =
+      () => testListener.SpecCount.ShouldEqual(1);
+  }
+
+  [Subject("Specification Runner")]
+  public class when_running_a_context_with_internal_Its
+    : RunnerSpecs
+  {
+    When of = Run<context_with_internal_It_field>;
+
+    Then should_succeed =
+      () => testListener.SpecCount.ShouldEqual(1);
+  }
+
+  [Subject("Specification Runner")]
+  public class when_running_a_context_with_public_Behaves_like
+    : RunnerSpecs
+  {
+    When of = Run<context_with_public_Behaves_like_field>;
+
+    Then should_succeed =
+      () => testListener.SpecCount.ShouldEqual(1);
+  }
+
+  [Subject("Specification Runner")]
+  public class when_running_a_context_with_nonprivate_framework_fields
+    : RunnerSpecs
+  {
+    When of = Run<context_with_nonprivate_framework_fields>;
+
+    Then should_succeed =
+      () => testListener.LastResult.Passed.ShouldBeTrue();
+  } 
+  
+  [Subject("Specification Runner")]
+  public class when_running_a_context_inside_a_static_class
+    : RunnerSpecs
+  {
+    When of = Run<StaticContainer.when_a_context_is_nested_inside_a_static_class>;
+
+    Then should_succeed =
+      () => testListener.LastResult.Passed.ShouldBeTrue();
+  }
+  
+  [Subject("Specification Runner")]
+  public class when_running_a_context_inside_a_static_class_that_is_nested_in_a_nonstatic_class
+    : RunnerSpecs
+  {
+    When of = Run<NonStaticContainer.StaticContainer.when_a_context_is_nested_inside_a_static_class_that_is_nested_inside_a_class>;
+
+    Then should_succeed =
+      () => testListener.LastResult.Passed.ShouldBeTrue();
   }
 
   public class RunnerSpecs

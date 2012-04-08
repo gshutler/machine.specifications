@@ -13,12 +13,13 @@ task :configure do
   
   build_config = {
     :build => {
-      :base => "0.5",
+      :base => File.read('VERSION'),
       :number => ENV['BUILD_NUMBER'],
       :sha => ENV['BUILD_VCS_NUMBER'] || 'no SHA',
+      :prerelease => ENV.include?('PRERELEASE')
     },
     :target => target,
-    :sign_assembly => (ENV['SIGN_ASSEMBLY'] =~ /true/i and true or false),
+    :sign_assembly => ENV.include?('SIGN_ASSEMBLY'),
     :out_dir => "Build/#{target}/",
     :nunit_framework => "net-3.5",
     :mspec_options => (["--teamcity"] if ENV.include?('TEAMCITY_PROJECT_NAME')) || []
@@ -28,19 +29,22 @@ task :configure do
     next File.read('NUGET_KEY') if File.readable?('NUGET_KEY')
   end
   configatron.project = Configatron::Delayed.new do
-    "#{project}#{"-Testing" if ENV.include? 'VERSION'}#{'-Signed' if configatron.sign_assembly}"
+    "#{project}#{'-Signed' if configatron.sign_assembly}"
   end
   configatron.nuget.package = Configatron::Delayed.new do
-    "Distribution/#{configatron.project}.#{configatron.version.compatible}.nupkg"
+    "Distribution/#{configatron.project}.#{configatron.version.package}.nupkg"
   end
   configatron.zip.package = Configatron::Delayed.new do
     "Distribution/#{configatron.project}-#{configatron.target}.zip"
   end
-  configatron.version.full  = Configatron::Delayed.new do
-    ENV['VERSION'] || "#{configatron.build.base}.#{configatron.build.number || '0'}-#{configatron.build.sha[0..6]}"
+  configatron.version.full = Configatron::Delayed.new do
+    "#{configatron.build.base}#{'-beta' + configatron.build.number if configatron.build.prerelease}-#{configatron.build.sha[0..6]}"
   end
-  configatron.version.compatible   = Configatron::Delayed.new do
-    ENV['VERSION'] || "#{configatron.build.base}.#{configatron.build.number || '0'}.0"
+  configatron.version.package = Configatron::Delayed.new do
+    "#{configatron.build.base}#{'-beta' + configatron.build.number if configatron.build.prerelease}"
+  end
+  configatron.version.compatible = Configatron::Delayed.new do
+    "#{configatron.build.base}.0"
   end
 
   configatron.configure_from_hash build_config
@@ -69,7 +73,7 @@ end
 namespace :generate do
   desc "Generate embeddable version information"
   task :version do
-    next if configatron.build.number.nil? && !ENV.include?('VERSION')
+    next if configatron.build.number.nil?
     
     puts "##teamcity[buildNumber '#{configatron.version.full}']"
 
@@ -148,11 +152,11 @@ namespace :specs do
   task :run do
     puts 'Running Specs...'
     
-    specs = FileList.new("#{configatron.out_dir}/Tests/*.Specs.dll").to_a
+    specs = FileList.new("#{configatron.out_dir}/Tests/*.Specs.dll").exclude(/Clr4/)
     sh "#{configatron.out_dir}/mspec.exe", "--html", "Specs/#{configatron.project}.Specs.html", "-x", "example", *(configatron.mspec_options + specs)
     
-    specs = ["#{configatron.out_dir}/Tests/Machine.Specifications.Example.Clr4.dll"]
-    sh "#{configatron.out_dir}/mspec-clr4.exe", "-x", "example", *(configatron.mspec_options + specs)
+    specs = FileList.new("#{configatron.out_dir}/Tests/*Clr4*.dll")
+    sh "#{configatron.out_dir}/mspec-clr4.exe", *(configatron.mspec_options + specs)
     
     puts "Wrote specs to Specs/#{configatron.project}.Specs.html, run 'rake specs:view' to see them"
   end
@@ -170,16 +174,22 @@ namespace :tests do
   
   task :run do
     puts 'Running Gallio tests...'
-    sh "Tools/Gallio/v3.1.397/Gallio.Echo.exe", "#{configatron.out_dir}/Tests/Gallio/Machine.Specifications.TestGallioAdapter.3.1.Tests.dll", "/plugin-directory:#{configatron.out_dir}", "/r:Local"
+    sh "Tools/Gallio/v3.3.454/Gallio.Echo.exe", "#{configatron.out_dir}/Tests/Gallio/Machine.Specifications.GallioAdapter.Tests.dll", "/plugin-directory:#{configatron.out_dir}", "/r:Local"
   end
 end
 
 namespace :package do
-  def framework_files(root = '.')
+  def net_20_framework_files(root = '.')
     FileList.new("#{root}/Machine.Specifications.dll") \
       .include("#{root}/Machine.Specifications.pdb") \
       .include("#{root}/Machine.Specifications.dll.tdnet") \
       .include("#{root}/Machine.Specifications.TDNetRunner.*")
+  end
+
+  def net_40_framework_files(root = '.')
+    net_20_framework_files(root) \
+      .include("#{root}/Machine.Specifications.Clr4.dll") \
+      .include("#{root}/Machine.Specifications.Clr4.pdb")
   end
 
   def source_files(root = '.')
@@ -218,15 +228,19 @@ namespace :package do
       "-BasePath", "#{configatron.out_dir}NuGet".gsub(/\//, '\\'),
       "-OutputDirectory", configatron.nuget.package.dirname]
 
-    sh "Tools/NuGet/NuGet.exe", *(opts)
+    sh ".nuget/NuGet.exe", *(opts)
   end
 
   namespace :nuget do
     desc "Package build artifacts as a NuGet package and a symbols package"
     task :create => :zip do
-      framework_files(configatron.out_dir).copy_hierarchy \
+      net_20_framework_files(configatron.out_dir).copy_hierarchy \
         :source_dir => configatron.out_dir,
-        :target_dir => "#{configatron.out_dir}NuGet/lib/"
+        :target_dir => "#{configatron.out_dir}NuGet/lib/net20"
+
+      net_40_framework_files(configatron.out_dir).copy_hierarchy \
+        :source_dir => configatron.out_dir,
+        :target_dir => "#{configatron.out_dir}NuGet/lib/net40"
 
       source_files('Source').copy_hierarchy \
         :source_dir => 'Source',
@@ -254,7 +268,7 @@ namespace :package do
         configatron.nuget.key,
         { :verbose => false }]
 
-      sh "Tools/NuGet/NuGet.exe", *(opts) do |ok, status|
+      sh ".nuget/NuGet.exe", *(opts) do |ok, status|
         ok or fail "Command failed with status (#{status.exitstatus})"
       end
     end
